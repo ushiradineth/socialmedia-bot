@@ -85,9 +85,7 @@ def tiktok():
                 json.dump(data, outfile)
         
         driver.get("https://www.tiktok.com/@le_sserafim")
-    
-    driver.close()
-        
+
 
 tiktok()
 
