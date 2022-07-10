@@ -3,6 +3,8 @@ __pycache__
 __pycache__/selenium.cpython-310.pyc
 credentials.py
 test.py
+data.json
+.vscode
 
 # Logs
 logs
