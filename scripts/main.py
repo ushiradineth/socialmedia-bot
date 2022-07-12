@@ -1,6 +1,6 @@
-from pkg import *
+import pkg
 
-tiktok()
-instagram()
+pkg.tiktok.tiktok()
+# pkg.tiktok.instagram()
 
 # if int(strftime("%M"))%10 == 0:
