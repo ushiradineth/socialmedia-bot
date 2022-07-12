@@ -2,9 +2,15 @@ notes.txt
 __pycache__
 __pycache__/selenium.cpython-310.pyc
 credentials.py
-test.py
 data.json
 .vscode
+cookies.pkl
+test.py
+test2.py
+test3.py
+.gitignore
+downloads
+tests
 
 # Logs
 logs
