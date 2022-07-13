@@ -48,7 +48,7 @@ def combine_audio(vidname, audname, outname):
     audio_background = mpe.AudioFileClip(audname)
     final_clip = my_clip.set_audio(audio_background)
     final_clip.write_videofile(outname,fps=25)
-    time.sleep(5)
+    my_clip.close()
     os.replace(outname, vidname)
     os.remove(audname)
 
@@ -62,7 +62,7 @@ def media_upload(filename):
         upload_result = api.media_upload("downloads\\" + str(filename) + ".mp4")
     return upload_result
 
-def update_status(sRange, eRange, tweettext):
+def update_status(sRange, eRange, tweettext, files):
     for i in range(int(sRange), int(eRange)):
         upload_result = media_upload(i)
         files.append(upload_result.media_id_string)
@@ -73,7 +73,7 @@ def update_status(sRange, eRange, tweettext):
 
     return tweetR
 
-def update_status_thread(sRange, eRange, tweettext, tweet):
+def update_status_thread(sRange, eRange, tweettext, tweet, files):
     for i in range(int(sRange), int(eRange)):
         upload_result = media_upload(i)
         files.append(upload_result.media_id_string)
@@ -105,8 +105,6 @@ def instagram_login():
         for cookie in cookies:
             driver.add_cookie(cookie)
 
-        driver.get("https://www.instagram.com/")
-
     except:
         login = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "/html/body/div[1]/section/main/article/div[2]/div[1]/div[2]/form/div/div[3]")))
         username = driver.find_element(By.NAME, "username")
@@ -129,11 +127,12 @@ def download_video(vlink, vidname):
 
         time.sleep(5)
 
+
         for request in driver.requests:
             if request.response:
                 try:
                     if request.url not in urls:
-                        if (request.url).split("&")[4].split("=")[1] == str(vlink) and request.response.status_code == 200 and request.response.headers['Content-Type'].split("/")[0] == "video":
+                        if (request.url).split("edm")[1].split("=")[1].split("&")[0] == str(vlink) and request.response.status_code == 200 and request.response.headers['Content-Type'].split("/")[0] == "video":
                             r = requests.get(request.url.split("&bytestart")[0], stream=True)
                             if min == 0:
                                 min = int(r.headers['Content-length'])
@@ -144,6 +143,7 @@ def download_video(vlink, vidname):
                             elif int(r.headers['Content-length']) < min:
                                 min = int(r.headers['Content-length'])
                                 minurl = r.url
+                                  
 
                             urls.append(request.url)
                             x+=1
