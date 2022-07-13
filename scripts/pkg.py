@@ -6,6 +6,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from time import strftime
 from resources.credentials import *
+from os import walk
 import tweepy
 import pickle
 import time
@@ -14,6 +15,7 @@ import requests
 import os
 import json
 import re
+
 
 import tiktok
 import instagram
@@ -56,33 +58,50 @@ def download(url, name, ftype):
     urllib.request.urlretrieve(str(url), ("downloads\\" + str(name) + "." + str(ftype)))
 
 def media_upload(filename):
+    upload_result = ""
     try:
         upload_result = api.media_upload("downloads\\" + str(filename) + ".png")
     except:
         upload_result = api.media_upload("downloads\\" + str(filename) + ".mp4")
     return upload_result
 
-def update_status(sRange, eRange, tweettext, files):
-    for i in range(int(sRange), int(eRange)):
-        upload_result = media_upload(i)
-        files.append(upload_result.media_id_string)
-
-    tweetR= api.update_status(status=tweettext, media_ids=files)
-    upload_result=""
+def update_status(tweettext, lenn):
+    if lenn == 1:
+        upload_result = ""
+        upload_result = media_upload(1)
+        tweet = api.update_status(status=tweettext, media_ids=upload_result.media_id_string)
+        upload_result=""
+    
     files = []
+    tweet = ""
+    filenames = next(walk("scripts\\downloads"), (None, None, []))[2]
 
-    return tweetR
+    if lenn > 1:
+        for i in range (1, 11):
+            try:
+                if (len(files) == 4):
+                    if tweet != "":
+                        tweetemp = api.update_status(status=tweettext, media_ids=files, in_reply_to_status_id=tweet.id)
+                    else:
+                        tweetemp = api.update_status(status=tweettext, media_ids=files)
+                    tweet = tweetemp
+                    upload_result = ""
+                    files = []
 
-def update_status_thread(sRange, eRange, tweettext, tweet, files):
-    for i in range(int(sRange), int(eRange)):
-        upload_result = media_upload(i)
-        files.append(upload_result.media_id_string)
+                if str(i) + ".png" in filenames:
+                    upload_result = media_upload(i)
+                    files.append(upload_result.media_id_string)
 
-    tweetR= api.update_status(status=tweettext, media_ids=files, in_reply_to_status_id=tweet.id)
-    upload_result=""
-    files = []
-
-    return tweetR
+                elif str(i) + ".mp4" in filenames:
+                    upload_result = media_upload(i)
+                    if tweet != "":
+                        tweetemp = api.update_status(status=tweettext, media_ids=upload_result.media_id_string, in_reply_to_status_id=tweet.id)
+                    else:
+                        tweetemp = api.update_status(status=tweettext, media_ids=upload_result.media_id_string)
+                    tweet = tweetemp
+                    upload_result=""  
+            except:
+                pass
 
 def get_data(index):
     with open('scripts\\resources\\data.json', 'r') as outfile:
