@@ -40,9 +40,9 @@ def errorDM(class_name, e):
 
 #to combine audio and video with instagram videos
 def combine_audio(vidname, audname, outname):
-    vidname = "download\\" + str(vidname)
-    audname = "download\\" + str(audname)
-    outname = "download\\" + str(outname)
+    vidname = "downloads\\" + str(vidname)
+    audname = "downloads\\" + str(audname)
+    outname = "downloads\\" + str(outname)
     import moviepy.editor as mpe
     my_clip = mpe.VideoFileClip(vidname)
     audio_background = mpe.AudioFileClip(audname)
@@ -116,3 +116,45 @@ def instagram_login():
         driver.find_element(By.XPATH, "/html/body/div[1]/section/main/article/div[2]/div[1]/div[2]/form/div/div[3]").click()
         logindone = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "/html/body/div[1]/section/main/div/div/div/section/div/button")))
         pickle.dump( driver.get_cookies() , open("resources\\cookies.pkl","wb"))
+
+def download_video(vlink, vidname):
+    try:
+        max = 0
+        maxurl = ""
+        min = 0
+        minurl = ""
+
+        urls = []
+        x = 1
+
+        time.sleep(5)
+
+        for request in driver.requests:
+            if request.response:
+                try:
+                    if request.url not in urls:
+                        if (request.url).split("&")[4].split("=")[1] == str(vlink) and request.response.status_code == 200 and request.response.headers['Content-Type'].split("/")[0] == "video":
+                            r = requests.get(request.url.split("&bytestart")[0], stream=True)
+                            if min == 0:
+                                min = int(r.headers['Content-length'])
+
+                            if int(r.headers['Content-length']) > max:
+                                max = int(r.headers['Content-length'])
+                                maxurl = r.url
+                            elif int(r.headers['Content-length']) < min:
+                                min = int(r.headers['Content-length'])
+                                minurl = r.url
+
+                            urls.append(request.url)
+                            x+=1
+                except Exception as e:
+                    if str(e) != "list index out of range":
+                        print(e)
+                    pass
+
+        download(maxurl, str(vidname), "mp4")
+        download(minurl, str(vidname) + "audio", "mp4")
+        combine_audio(str(vidname) + ".mp4", str(vidname) + "audio.mp4", "out.mp4")
+
+    except Exception as e:
+        errorDM("instagram video donwload error: ", e)

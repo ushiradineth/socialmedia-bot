@@ -6,6 +6,8 @@ def instagram():
         #login to instagram
         pkg.driver.get("https://www.instagram.com/")
 
+        instagram_login()
+
         #getting the last tweeted instagram link from the json file
         latest_link = pkg.get_data("instagramLink")
 
@@ -72,6 +74,7 @@ def instagram():
                                 else:
                                     pics.append(multipost.find_element(pkg.By.XPATH, "/html/body/div[1]/div/div[1]/div/div[1]/div/div/div/div[1]/div[1]/section/main/div[1]/div[1]/article/div/div[2]/div/div[1]/div[2]/div/div/div/ul/li[2]/div/div/div/div/div[1]/img").get_attribute("src"))
                                     pkg.driver.find_element(pkg.By.CLASS_NAME, "_aahi").click()
+                                
 
                             print(pics)
                                                               
