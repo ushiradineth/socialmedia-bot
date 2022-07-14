@@ -67,10 +67,10 @@ def media_upload(filename):
 
 def update_status(tweettext, lenn):
     if lenn == 1:
-        upload_result = ""
-        upload_result = media_upload(1)
-        tweet = api.update_status(status=tweettext, media_ids=upload_result.media_id_string)
-        upload_result=""
+        files = []
+        files.append(media_upload(1).media_id_string)
+        tweet = api.update_status(status=tweettext, media_ids=files)
+        files = []
     
     files = []
     tweet = ""
@@ -85,21 +85,20 @@ def update_status(tweettext, lenn):
                     else:
                         tweetemp = api.update_status(status=tweettext, media_ids=files)
                     tweet = tweetemp
-                    upload_result = ""
                     files = []
 
                 if str(i) + ".png" in filenames:
-                    upload_result = media_upload(i)
-                    files.append(upload_result.media_id_string)
+                    files.append(media_upload(1).media_id_string)
 
                 elif str(i) + ".mp4" in filenames:
-                    upload_result = media_upload(i)
+                    mp4temp = []
+                    mp4temp.append(media_upload(1).media_id_string)
                     if tweet != "":
-                        tweetemp = api.update_status(status=tweettext, media_ids=upload_result.media_id_string, in_reply_to_status_id=tweet.id)
+                        tweetemp = api.update_status(status=tweettext, media_ids=mp4temp, in_reply_to_status_id=tweet.id)
                     else:
-                        tweetemp = api.update_status(status=tweettext, media_ids=upload_result.media_id_string)
+                        tweetemp = api.update_status(status=tweettext, media_ids=mp4temp)
                     tweet = tweetemp
-                    upload_result=""  
+                    mp4temp = []
             except:
                 pass
 
@@ -136,6 +135,7 @@ def instagram_login():
 
 def download_video(vlink, vidname):
     try:
+        print("start download fn")
         max = 0
         maxurl = ""
         min = 0
@@ -151,7 +151,7 @@ def download_video(vlink, vidname):
             if request.response:
                 try:
                     if request.url not in urls:
-                        if (request.url).split("edm")[1].split("=")[1].split("&")[0] == str(vlink) and request.response.status_code == 200 and request.response.headers['Content-Type'].split("/")[0] == "video":
+                        if (request.url).split("edm")[1].split("=")[1].split("&")[0] == str(vlink) and request.response.status_code == 200 and request.response.headers['Content-Type'].split("/")[0] == "video" and int(request.response.headers['Content-Length'] < 1000000):
                             r = requests.get(request.url.split("&bytestart")[0], stream=True)
                             if min == 0:
                                 min = int(r.headers['Content-length'])
@@ -171,9 +171,18 @@ def download_video(vlink, vidname):
                         print(e)
                     pass
 
-        download(maxurl, str(vidname), "mp4")
-        download(minurl, str(vidname) + "audio", "mp4")
-        combine_audio(str(vidname) + ".mp4", str(vidname) + "audio.mp4", "out.mp4")
+        try:
+            print("start")
+            download(maxurl, str(vidname), "mp4")
+            print("finish download")
+            try:
+                download(minurl, str(vidname) + "audio", "mp4")
+            except:
+                combine_audio(str(vidname) + ".mp4", str(vidname) + ".mp4", "out.mp4")
+            combine_audio(str(vidname) + ".mp4", str(vidname) + "audio.mp4", "out.mp4")
+            print("finish")
+        except:
+            pass
 
     except Exception as e:
         errorDM("instagram video donwload error: ", e)

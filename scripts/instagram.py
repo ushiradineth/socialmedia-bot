@@ -51,16 +51,37 @@ def instagram():
                     lenn = 1
                     #single post caption
                     try:
-                        caption = singlepost.find_element(pkg.By.XPATH, "/html/body/div[1]/div/div[1]/div/div[1]/div/div/div/div[1]/div[1]/section/main/div[1]/div[1]/article/div/div[2]/div/div[2]/div[1]/ul/div/li/div/div/div[2]/div[1]/span").text
-                        if pkg.re.findall("@", caption):
-                            biotemp = caption.split("@")
-                            caption = biotemp[0] + "@/" + biotemp[1]
+                        tempc = ""
+                        tc = caption
+
+                        for i in range(1,100):
+                            try:
+                                if "@" in tc:   
+                                    tempc = tempc + tc.partition("@")[0] + "@/"
+                                    tc = tc.partition("@")[2]
+                            except:
+                                pass
+
+                        caption = ""
+
+                        for i in range(1,100):
+                            try:
+                                if "#" in tempc:   
+                                    caption = caption + tempc.partition("#")[0] + "#/"
+                                    tempc = tempc.partition("#")[2]
+                            except:
+                                pass
+
+                        caption = caption[:190] + '..' * (len(caption) > 190) + '..'
+                        
                     except Exception as e:
-                        print("single post caption error: ", e)
+                        if "Stacktrace:" not in str(e):
+                            print("single post caption error: ", e)
                         caption=""     
 
                 except Exception as e:
-                    print("single post error: ", e)
+                    if "Stacktrace:" not in str(e):
+                        print("single post error: ", e)
                     
                     #multipost
                     try:                   
@@ -84,8 +105,8 @@ def instagram():
                                             
                                     else:
                                         if link.get_attribute("src") not in links:
-                                            pkg.download(link.get_attribute("src"), str(y), 'png')
                                             y+=1
+                                            pkg.download(link.get_attribute("src"), str(y), 'png')
                                             links.append(link.get_attribute("src"))
                                             pkg.driver.find_element(pkg.By.CLASS_NAME, "_aahi").click()
                             except:
@@ -97,16 +118,37 @@ def instagram():
                         # multipost caption    
                         try:
                             caption = multipost.find_element(pkg.By.XPATH, "/html/body/div[1]/div/div[1]/div/div[1]/div/div/div/div[1]/div[1]/section/main/div[1]/div[1]/article/div/div[2]/div/div[2]/div[1]/ul/div/li/div/div/div[2]/div[1]").text
-                            if pkg.re.findall("@", caption):
-                                biotemp = caption.split("@")
-                                caption = biotemp[0] + "@/" + biotemp[1]
-                            caption = "\n\n" + caption.strip()
+                            tempc = ""
+                            tc = caption
+
+                            for i in range(1,100):
+                                try:
+                                    if "@" in tc:   
+                                        tempc = tempc + tc.partition("@")[0] + "@/"
+                                        tc = tc.partition("@")[2]
+                                except:
+                                    pass
+
+                            caption = ""
+
+                            for i in range(1,100):
+                                try:
+                                    if "#" in tempc:   
+                                        caption = caption + tempc.partition("#")[0] + "#/"
+                                        tempc = tempc.partition("#")[2]
+                                except:
+                                    pass
+
+                            caption = caption[:190] + '..' * (len(caption) > 190) + '..'
+
                         except Exception as e:
-                            print("multipost caption error: ", e)
+                            if "Stacktrace:" not in str(e):
+                                print("multipost caption error: ", e)
                             caption=""  
 
                     except Exception as e:
-                        print("multipost error: ", e)
+                        if "Stacktrace:" not in str(e):
+                            print("multipost error: ", e)
 
                         try:
                             # video
@@ -116,22 +158,30 @@ def instagram():
                             lenn = 1
                         
                         except Exception as e:
-                            print("video error: ", e)
-                                          
-                tweet = "[Instagram Update - " + str(pkg.strftime("%d%m%y")) + "] (" + newPost + ")" + str(caption) + "\n\n#aespa #에스파"
+                            if "Stacktrace:" not in str(e):
+                                print("video error: ", e)
 
-                print(tweet)
 
-                pkg.update_status(tweet, lenn)
+                try:   
+                    print(caption)                 
+                    
+                    tweet = "[Instagram Update - " + str(pkg.strftime("%d%m%y")) + "] (" + newPost + ")" + str(caption) + "\n\n#aespa #에스파"
+                    tweet = tweet[:280] + '..' * (len(caption) > 280)
+                    print(tweet) 
+                    
 
-                for i in range(0, lenn+1):
-                    try:
-                        pkg.os.remove(str(i) + ".png")
-                    except:
+                    pkg.update_status(tweet, lenn)
+
+                    for i in range(1, lenn+1):
                         try:
-                            pkg.os.remove(str(i) + ".mp4")
+                            pkg.os.remove("downloads\\" + str(i) + ".png")
                         except:
-                            pass
-                
-                #posting the new link to the json file for the next run
-                pkg.update_data('instagramLink', newPost)
+                            try:
+                                pkg.os.remove("downloads\\" + str(i) + ".mp4")
+                            except:
+                                pass
+                    
+                    #posting the new link to the json file for the next run
+                    pkg.update_data('instagramLink', newPost)
+                except Exception as e:
+                    print("end error: ", e)
