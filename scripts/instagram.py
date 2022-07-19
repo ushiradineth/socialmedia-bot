@@ -63,7 +63,7 @@ def instagram():
                                 print("single img caption error: ", e)
                             caption=""   
 
-                    #reel    
+                    #reel or video
                     except:
                         links = []
                         videoposterlinks = []
@@ -71,12 +71,16 @@ def instagram():
                         try:
                             linkclass = singlepost.find_element(pkg.By.CSS_SELECTOR, "video").get_attribute("class")
                             if linkclass == "_ab1d":
-                                if singlepost.find_element(pkg.By.CSS_SELECTOR, "video").get_attribute("poster") not in videoposterlinks:
-                                    templink = singlepost.find_element(pkg.By.CSS_SELECTOR, "video").get_attribute("poster")
-                                    videoposterlinks.append(str(templink))
+                                if singlepost.find_element(pkg.By.CSS_SELECTOR, "video").get_attribute("src").split(":")[0] == "blob":
+                                    if singlepost.find_element(pkg.By.CSS_SELECTOR, "video").get_attribute("poster") not in videoposterlinks:
+                                        templink = singlepost.find_element(pkg.By.CSS_SELECTOR, "video").get_attribute("poster")
+                                        videoposterlinks.append(str(templink))
+                                        lenn+=1
+                                        vlink = str(templink).split("&")[4].split("=")[1]
+                                        pkg.download_video(str(vlink), lenn)
+                                else:
                                     lenn+=1
-                                    vlink = str(templink).split("&")[4].split("=")[1]
-                                    pkg.download_video(str(vlink), lenn)
+                                    pkg.download(singlepost.find_element(pkg.By.CSS_SELECTOR, "video").get_attribute("src"), lenn, "mp4")
 
                         except Exception as e:
                             if "Stacktrace:" not in str(e):
@@ -174,5 +178,6 @@ def instagram():
                     
                     # #posting the new link to the json file for the next run
                     # pkg.update_data('instagramLink', newPost)
+                    
                 except Exception as e:
                     print("end error: ", e)
