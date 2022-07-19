@@ -29,20 +29,22 @@ def tiktok():
                 link = div.find_element(By.XPATH, "/html/body/div[2]/div[2]/div[2]/div/div[2]/div[2]/div/div[" + str(i) + "]/div[1]/div/div/a").get_attribute("href")
                 bio = div.find_element(By.XPATH, "/html/body/div[2]/div[2]/div[2]/div/div[2]/div[2]/div/div[" + str(i) + "]/div[2]/a").get_attribute("title")
                 
-                #fixing hashtags
-                biotext = bio.split("#")
-                if re.findall('with', bio):
-                    biotext[0] = biotext[0] + "#" + biotext[1]
+                if bio != "":
+                    bio = "\n\n" + str(bio)
                     
-                if re.findall("@", bio):
-                    biotemp = biotext[0].split("@")
-                    biotext[0] = biotemp[0] + "@/" + biotemp[1]
+                    #fixing hashtags
+                    biotext = bio.split("#")
 
-                hashtaglist = "#KARINA", "#카리나", "#GISELLE", "#지젤", "#WINTER", "#윈터", "#NINGNING", "#닝닝"
-                hashtags = ""
-                for hashtag in hashtaglist:
-                    if re.findall(hashtag, bio):
-                        hashtags = hashtags + " " + hashtag
+                    if re.findall('with', bio):
+                        biotext[0] = biotext[0].replace("with", "")
+                        
+                    biotext[0] = biotext[0].replace("@", "@/")
+
+                    hashtaglist = "#KARINA", "#카리나", "#GISELLE", "#지젤", "#WINTER", "#윈터", "#NINGNING", "#닝닝"
+                    hashtags = ""
+                    for hashtag in hashtaglist:
+                        if re.findall(hashtag, bio):
+                            hashtags = hashtags + " " + hashtag
                 
                 #downloading the video
                 pkg.driver.get(div.find_element(By.XPATH, "/html/body/div[2]/div[2]/div[2]/div/div[2]/div[2]/div/div[" + str(i) + "]/div[1]/div/div/a").get_attribute("href"))
@@ -51,7 +53,7 @@ def tiktok():
                 pkg.download(videolink, "tiktok", "mp4")
 
                 #tweeting
-                tweet = "[TikTok Update - " + str(strftime("%d%m%y")) + "] (" + link + ")" + "\n\n" + " ".join(biotext[0].strip().split()) + "\n\n#aespa #에스파" + hashtags
+                tweet = "[TikTok Update - " + str(strftime("%d%m%y")) + "] (" + link + ")" + " ".join(biotext[0].strip().split()) + "\n\n#aespa #에스파" + hashtags
                 upload_result = pkg.api.media_upload('downloads\\tiktok.mp4')
                 pkg.api.update_status(status=tweet, media_ids=[upload_result.media_id_string])
                 os.remove('downloads\\tiktok.mp4')

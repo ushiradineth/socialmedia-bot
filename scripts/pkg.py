@@ -135,7 +135,6 @@ def instagram_login():
 
 def download_video(vlink, vidname):
     try:
-        print("start download fn")
         max = 0
         maxurl = ""
         min = 0
@@ -146,13 +145,13 @@ def download_video(vlink, vidname):
 
         time.sleep(5)
 
-
         for request in driver.requests:
             if request.response:
                 try:
                     if request.url not in urls:
-                        if (request.url).split("edm")[1].split("=")[1].split("&")[0] == str(vlink) and request.response.status_code == 200 and request.response.headers['Content-Type'].split("/")[0] == "video" and int(request.response.headers['Content-Length'] < 1000000):
+                        if (request.url).split("edm")[1].split("=")[1].split("&")[0] == str(vlink) and request.response.status_code == 200 and request.response.headers['Content-Type'].split("/")[0] == "video" and int(request.response.headers['Content-Length']) < 1000000:
                             r = requests.get(request.url.split("&bytestart")[0], stream=True)
+
                             if min == 0:
                                 min = int(r.headers['Content-length'])
 
@@ -161,28 +160,28 @@ def download_video(vlink, vidname):
                                 maxurl = r.url
                             elif int(r.headers['Content-length']) < min:
                                 min = int(r.headers['Content-length'])
-                                minurl = r.url
-                                  
+                                minurl = r.url      
 
                             urls.append(request.url)
                             x+=1
+                            
                 except Exception as e:
                     if str(e) != "list index out of range":
                         print(e)
                     pass
 
         try:
-            print("start")
             download(maxurl, str(vidname), "mp4")
-            print("finish download")
+
             try:
                 download(minurl, str(vidname) + "audio", "mp4")
             except:
                 combine_audio(str(vidname) + ".mp4", str(vidname) + ".mp4", "out.mp4")
+
             combine_audio(str(vidname) + ".mp4", str(vidname) + "audio.mp4", "out.mp4")
-            print("finish")
-        except:
-            pass
+
+        except Exception as e:
+            errorDM("instagram video donwload error: ", e)
 
     except Exception as e:
         errorDM("instagram video donwload error: ", e)
