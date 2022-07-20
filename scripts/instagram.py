@@ -40,6 +40,7 @@ def instagram():
 
             #getting and tweeting the posts
             for newPost in newPosts:
+
                 time.sleep(5)
                 pkg.driver.get(newPost)
                 caption = ""
@@ -99,8 +100,6 @@ def instagram():
 
                             caption = caption.replace("  ", " ")
                             
-                            
-
                         except Exception as e:
                             if "Stacktrace:" not in str(e):
                                 print("reel caption error: ", e)
@@ -232,3 +231,5 @@ def instagram():
                     
                 except Exception as e:
                     print("end error: ", e)
+
+        #stories
