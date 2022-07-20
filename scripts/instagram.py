@@ -40,31 +40,27 @@ def instagram():
 
             #getting and tweeting the posts
             for newPost in newPosts:
+                time.sleep(5)
                 pkg.driver.get(newPost)
                 caption = ""
                 lenn = 0
+
+                #clrer downloads file
+                for i in range(1, lenn+1):
+                    try:
+                        pkg.os.remove("downloads\\" + str(i) + ".png")
+                    except:
+                        try:
+                            pkg.os.remove("downloads\\" + str(i) + ".mp4")
+                        except:
+                            pass
 
                 #single post
                 try:
                     singlepost = pkg.WebDriverWait(pkg.driver, 10).until(pkg.EC.presence_of_element_located((pkg.By.CLASS_NAME, "_aato")))
 
-                    #img
-                    try:
-                        link = singlepost.find_element(pkg.By.CSS_SELECTOR, "img").get_attribute("src")
-                        pkg.download(link, "1", "png")
-                        lenn = 1
-                        #single post caption
-                        try:
-                            caption = "\n\n" + singlepost.find_element(pkg.By.XPATH, "/html/body/div[1]/div/div/div/div[1]/div/div/div/div[1]/div[1]/section/main/div[1]/div[1]/article/div/div[2]/div/div[2]/div[1]/ul/div/li/div/div/div[2]/div[1]").text.replace("#", "#/").replace("@", "@/")
-                            caption = caption[:190] + '..' * (len(caption) > 190)
-
-                        except Exception as e:
-                            if "Stacktrace:" not in str(e):
-                                print("single img caption error: ", e)
-                            caption=""   
-
                     #reel or video
-                    except:
+                    try:
                         links = []
                         videoposterlinks = []
 
@@ -88,12 +84,57 @@ def instagram():
 
                         #reel caption
                         try:
-                            caption = "\n\n" + singlepost.find_element(pkg.By.XPATH, "/html/body/div[1]/div/div/div/div[1]/div/div/div/div[1]/div[1]/section/main/div[1]/div[1]/article/div/div[2]/div/div[2]/div[1]/ul/div/li/div/div/div[2]/div[1]").text.replace("#", "#/").replace("@", "@/")[:190] + '..' * (len(caption) > 190)
+                            caption = "\n\n" + singlepost.find_element(pkg.By.XPATH, "/html/body/div[1]/div/div/div/div[1]/div/div/div/div[1]/div[1]/section/main/div[1]/div[1]/article/div/div[2]/div/div[2]/div[1]/ul/div/li/div/div/div[2]/div[1]").text.replace("#", "#/").replace("@", "@/")
+                            caption = caption[:190] + '..' * (len(caption) > 190)
+
+                            hashtaglist = "#KARINA", "#카리나", "#GISELLE", "#지젤", "#WINTER", "#윈터", "#NINGNING", "#닝닝"
+                            hashtags = ""
+                            for hashtag in hashtaglist:
+                                if re.findall(hashtag, caption):
+                                    caption = caption.replace(hashtag, "")
+                                    hashtags = hashtags +  hashtag + " " 
+
+                            if "#aespa" in caption:
+                                caption = caption.replace("#aespa", "")
+
+                            caption = caption.replace("  ", " ")
                             
+                            
+
                         except Exception as e:
                             if "Stacktrace:" not in str(e):
                                 print("reel caption error: ", e)
                             caption=""   
+
+                        
+                    #img
+                    except:
+                        link = singlepost.find_element(pkg.By.CSS_SELECTOR, "img").get_attribute("src")
+                        pkg.download(link, "1", "png")
+                        lenn = 1
+                        
+                        #single post caption
+                        try:
+                            caption = "\n\n" + singlepost.find_element(pkg.By.XPATH, "/html/body/div[1]/div/div/div/div[1]/div/div/div/div[1]/div[1]/section/main/div[1]/div[1]/article/div/div[2]/div/div[2]/div[1]/ul/div/li/div/div/div[2]/div[1]").text.replace("#", "#/").replace("@", "@/")
+                            caption = caption[:190] + '..' * (len(caption) > 190)
+
+                            hashtaglist = "#KARINA", "#카리나", "#GISELLE", "#지젤", "#WINTER", "#윈터", "#NINGNING", "#닝닝"
+                            hashtags = ""
+                            for hashtag in hashtaglist:
+                                if re.findall(hashtag, caption):
+                                    caption = caption.replace(hashtag, "")
+                                    hashtags = hashtags +  hashtag + " " 
+
+                            if "#aespa" in caption:
+                                caption = caption.replace("#aespa", "")
+
+                            caption = caption.replace("  ", " ")
+
+                        except Exception as e:
+                            if "Stacktrace:" not in str(e):
+                                print("single img caption error: ", e)
+                            caption=""   
+
 
                 except Exception as e:
                     if "Stacktrace:" not in str(e):
@@ -137,6 +178,18 @@ def instagram():
                         try:
                             caption = "\n\n" + multipost.find_element(pkg.By.XPATH, "/html/body/div[1]/div/div[1]/div/div[1]/div/div/div/div[1]/div[1]/section/main/div[1]/div[1]/article/div/div[2]/div/div[2]/div[1]/ul/div/li/div/div/div[2]/div[1]").text.replace("#", "#/").replace("@", "@/")
                             caption = caption[:190] + '..' * (len(caption) > 190)
+                            
+                            hashtaglist = "#KARINA", "#카리나", "#GISELLE", "#지젤", "#WINTER", "#윈터", "#NINGNING", "#닝닝"
+                            hashtags = ""
+                            for hashtag in hashtaglist:
+                                if re.findall(hashtag, caption):
+                                    caption = caption.replace(hashtag, "")
+                                    hashtags = hashtags +  hashtag + " " 
+
+                            if "#aespa" in caption:
+                                caption = caption.replace("#aespa", "")
+
+                            caption = caption.replace("  ", " ")
 
                         except Exception as e:
                             if "Stacktrace:" not in str(e):
@@ -160,21 +213,19 @@ def instagram():
 
 
                 try:   
-                    tweet = "[Instagram Update - " + str(pkg.strftime("%d%m%y")) + "] (" + newPost + ")" + str(caption) + "\n\n#aespa #에스파"
-                    tweet = tweet[:280] + '..' * (len(caption) > 280)
-                    print(tweet) 
-                    
+                    tweet = "[Instagram Update - " + str(pkg.strftime("%d%m%y")) + "] (" + newPost + ")" + str(caption) + "\n\n#aespa #에스파" + hashtags
+                    tweet = tweet[:280] + '..' * (len(caption) > 280)                    
 
                     pkg.update_status(tweet, lenn)
 
-                    # for i in range(1, lenn+1):
-                    #     try:
-                    #         pkg.os.remove("downloads\\" + str(i) + ".png")
-                    #     except:
-                    #         try:
-                    #             pkg.os.remove("downloads\\" + str(i) + ".mp4")
-                    #         except:
-                    #             pass
+                    for i in range(1, lenn+1):
+                        try:
+                            pkg.os.remove("downloads\\" + str(i) + ".png")
+                        except:
+                            try:
+                                pkg.os.remove("downloads\\" + str(i) + ".mp4")
+                            except:
+                                pass
                     
                     # #posting the new link to the json file for the next run
                     # pkg.update_data('instagramLink', newPost)
